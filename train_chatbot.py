@@ -1,3 +1,4 @@
+#load all the required libraries
 import nltk
 from nltk.stem import WordNetLemmatizer
 lemmatizer = WordNetLemmatizer()
@@ -9,14 +10,12 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation, Dropout
 from keras.optimizers import SGD
 import random
-
-# import nltk
 nltk.download('wordnet')
 
 
-words=[]
-classes = []
-documents = []
+words=[] #to store the list of all words
+classes = [] # to store the list of all the categories("tag")
+documents = [] #list to store the tokenized words of a sentence along wiwth the tag
 ignore_words = ['?', '!']
 
 
@@ -25,18 +24,18 @@ ignore_words = ['?', '!']
 # for i in data["intents"]:
 # 	print(i)
 
-data_file = open('intents.json').read()
-intents = json.loads(data_file)
+data_file = open('intents.json').read() #reading the json file having patterns and reponses
+intents = json.loads(data_file) #load the file for further process
 # print(intents)
 
 for intent in intents['intents']:
     for pattern in intent['patterns']:
 
-        #tokenize each word
+        #tokenize each word from each sentence
         w = nltk.word_tokenize(pattern)
-        words.extend(w)
+        words.extend(w) # add the list of words to the "words" list
         #add documents in the corpus
-        documents.append((w, intent['tag']))
+        documents.append((w, intent['tag']))#tokenized sentence along with its tag is stored
          # add to our classes list-- printing only unique values of classes
         if intent['tag'] not in classes:
             classes.append(intent['tag'])
@@ -54,6 +53,7 @@ print()
 print("Classes are", classes)
 
 
+#now after tthe iterations, "words" contains all the words in the vocab
 # lemmatize, lower each word and remove duplicates
 words = [lemmatizer.lemmatize(w.lower()) for w in words if w not in ignore_words]
 # sort words -- alphabetical order
@@ -81,16 +81,24 @@ print()
 # words = all words, vocabulary
 print (len(words), "no of unique lemmatized words", words)
 
+
+#store the vocab in a pickel file
 pickle.dump(words,open('words.pkl','wb'))
+
+#store the classes in pickel file
 pickle.dump(classes,open('classes.pkl','wb'))
 
 
+
+#######################################
 #Create training and testing data
 
 # create our training data
 training = []
 # create an empty array for our output
 output_empty = [0] * len(classes)
+
+
 # training set, bag of words for each sentence
 for doc in documents:
     # initialize our bag of words
@@ -113,6 +121,10 @@ for doc in documents:
     output_row[classes.index(doc[1])] = 1
 
     training.append([bag, output_row])
+
+
+# print(training)
+
 # shuffle our features and turn into np.array
 random.shuffle(training)
 training = np.array(training)
