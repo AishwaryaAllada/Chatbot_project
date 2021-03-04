@@ -38,7 +38,7 @@ def bow(sentence, words, show_details=True):
 
 def predict_class(sentence, model):
     # filter out predictions below a threshold
-    p = bow(sentence, words,show_details=False)
+    p = bow(sentence, words,show_details=True)
     res = model.predict(np.array([p]))[0]
     ERROR_THRESHOLD = 0.25
     results = [[i,r] for i,r in enumerate(res) if r>ERROR_THRESHOLD]
